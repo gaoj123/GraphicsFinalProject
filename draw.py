@@ -368,3 +368,25 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
         z+= dz
         loop_start+= 1
     plot( screen, zbuffer, color, x, y, z )
+
+def drawMesh(fileName):
+    vectors=[]
+    faces=[]
+    f=open(fileName)
+    lines=f.readlines()
+    c=0
+    while c<len(lines):
+        line=lines[c].strip()
+        print line
+        arrLine=line.split(" ")
+        if arrLine[0]=="v":
+            vectors.append([arrLine[1],arrLine[2],arrLine[3]])
+        elif arrLine[0]=="f":
+            #print arrLine[1].split("//")[0]
+            v1=arrLine[1].split("//")[0]
+            v2=arrLine[2].split("//")[0]
+            v3=arrLine[3].split("//")[0]
+            faces.append([v1,v2,v3])
+        c+=1
+
+drawMesh("minicooper.obj")

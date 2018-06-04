@@ -222,6 +222,8 @@ def run(filename):
                 display(screen)
             elif c == 'save':
                 save_extension(screen, args[0])
+            elif c=='mesh':
+                drawMesh(args[0])
         if num_frames>1:
             save_extension(screen, ("./anim/" + basename + ("%03d" % int(frame)) + ".png"))
         tmp = new_matrix()
