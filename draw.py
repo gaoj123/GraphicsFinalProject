@@ -108,8 +108,12 @@ def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dref
                 v0sumNormal=processed[v0]
                 v1sumNormal=processed[v1]
                 v2sumNormal=processed[v2]
-                color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
-                scanline_convert(matrix, point, screen, zbuffer, color)
+                i0= get_lighting(v0sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+                i1= get_lighting(v1sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+                i2= get_lighting(v2sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+                #color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
+                #scanline_convert(matrix, point, screen, zbuffer, color)
+                scanline_convert(matrix, point, screen, zbuffer, i0,i1,i2)
             points+=3
             # draw_line( int(matrix[point][0]),
             #            int(matrix[point][1]),
