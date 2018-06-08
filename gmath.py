@@ -77,6 +77,13 @@ def normalize(vector):
     for i in range(3):
         vector[i] = vector[i] / magnitude
 
+def sumVectors(v1,v2):
+    N=[0,0,0]
+    N[0]=v1[0]+v2[0]
+    N[1]=v1[1]+v2[1]
+    N[2]=v1[2]+v2[2]
+    return N
+
 def dot_product(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 

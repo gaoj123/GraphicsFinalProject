@@ -56,20 +56,61 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x1, y1, z1);
     add_point(polygons, x2, y2, z2);
 
+def processHashTable(vertices):
+    toRet={}
+    for key in vertices:
+        surfNorms=vertices[key]
+        sumVect=[0,0,0]
+        for i in surfNorms:
+            normalize(i)
+        for j in surfNorms:
+            sumVect=sumVectors(sumVect,j)
+        normalize(sumVect)
+        toRet[key]=sumVect
+    return toRet
+
 def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect):
     if len(matrix) < 2:
         print 'Need at least 3 points to draw'
         return
 
     point = 0
+    vert={}
     while point < len(matrix) - 2:
-
         normal = calculate_normal(matrix, point)[:]
-        if dot_product(normal, view) > 0:
-
-            color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
-            scanline_convert(matrix, point, screen, zbuffer, color)
-
+        v0=int(matrix[point])
+        v1=int(matrix[point+1])
+        v2=int(matrix[point+2])
+        if v0 in vert:
+            surfNor=calculate_normal(matrix,point)
+            vert[v0].append(surfNor)
+        else:
+            vert[v0]=[surfNor]
+        if v1 in vert:
+            surfNor=calculate_normal(matrix,point+1)
+            vert[v1].append(surfNor)
+        else:
+            vert[v1]=[surfNor]
+        if v2 in vert:
+            surfNor=calculate_normal(matrix,point+2)
+            vert[v2].append(surfNor)
+        else:
+            vert[v2]=[surfNor]
+        points+=3
+    point=0
+    processed=processHashTable(vert)
+    while point < len(matrix) - 2:
+            normal = calculate_normal(matrix, point)[:]
+            v0=int(matrix[point])
+            v1=int(matrix[point+1])
+            v2=int(matrix[point+2])
+            if dot_product(normal, view) > 0:
+                v0sumNormal=processed[v0]
+                v1sumNormal=processed[v1]
+                v2sumNormal=processed[v2]
+                color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
+                scanline_convert(matrix, point, screen, zbuffer, color)
+            points+=3
             # draw_line( int(matrix[point][0]),
             #            int(matrix[point][1]),
             #            matrix[point][2],
