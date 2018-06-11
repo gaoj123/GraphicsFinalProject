@@ -3,7 +3,7 @@ from matrix import *
 from math import *
 from gmath import *
 
-def scanline_convert(polygons, i, screen, zbuffer, color ):
+def scanline_convert(polygons, i, screen, zbuffer, c1,c2,c3 ):
     flip = False
     BOT = 0
     TOP = 2
@@ -24,7 +24,11 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
     x1 = points[BOT][0]
     z1 = points[BOT][2]
     y = int(points[BOT][1])
-
+    c=[c1,c2,c3]
+    c.sort(key = lambda x: x[1])
+    c0=c[BOT]
+    c1=c[MID]
+    c2=c[TOP]
     distance0 = int(points[TOP][1]) - y * 1.0
     distance1 = int(points[MID][1]) - y * 1.0
     distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0
@@ -34,13 +38,17 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
     dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
 
+    dc0=(c2-c0)/distance0 if distance0 != 0 else 0
+    dc1=(c1-c0)/ distance1 if distance1 != 0 else 0
     while y <= int(points[TOP][1]):
-
-        draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+        draw_lineShade(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, c0,c1)
+        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
         x0+= dx0
         z0+= dz0
         x1+= dx1
         z1+= dz1
+        c0+=dc0
+        c1+=dc1
         y+= 1
 
         if ( not flip and y >= int(points[MID][1])):
@@ -50,6 +58,55 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
             dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
             x1 = points[MID][0]
             z1 = points[MID][2]
+            dc1=(c2-c1)/distance2 if distance2 != 0 else 0
+            
+# def scanline_convert(polygons, i, screen, zbuffer, color ):
+#     flip = False
+#     BOT = 0
+#     TOP = 2
+#     MID = 1
+
+#     points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
+#                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
+#                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
+
+#     # color = [0,0,0]
+#     # color[RED] = (23*(i/3)) %256
+#     # color[GREEN] = (109*(i/3)) %256
+#     # color[BLUE] = (227*(i/3)) %256
+
+#     points.sort(key = lambda x: x[1])
+#     x0 = points[BOT][0]
+#     z0 = points[BOT][2]
+#     x1 = points[BOT][0]
+#     z1 = points[BOT][2]
+#     y = int(points[BOT][1])
+
+#     distance0 = int(points[TOP][1]) - y * 1.0
+#     distance1 = int(points[MID][1]) - y * 1.0
+#     distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0
+
+#     dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
+#     dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
+#     dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
+#     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+
+#     while y <= int(points[TOP][1]):
+
+#         draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+#         x0+= dx0
+#         z0+= dz0
+#         x1+= dx1
+#         z1+= dz1
+#         y+= 1
+
+#         if ( not flip and y >= int(points[MID][1])):
+#             flip = True
+
+#             dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
+#             dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
+#             x1 = points[MID][0]
+#             z1 = points[MID][2]
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0);
@@ -101,6 +158,9 @@ def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dref
     processed=processHashTable(vert)
     while point < len(matrix) - 2:
             normal = calculate_normal(matrix, point)[:]
+            # v0=int(matrix[point])
+            # v1=int(matrix[point+1])
+            # v2=int(matrix[point+2])
             v0=int(matrix[point])
             v1=int(matrix[point+1])
             v2=int(matrix[point+2])
@@ -336,7 +396,20 @@ def add_edge( matrix, x0, y0, z0, x1, y1, z1 ):
 def add_point( matrix, x, y, z=0 ):
     matrix.append( [x, y, z, 1] )
 
-
+def draw_lineShade( x0, y0, z0, x1, y1, z1, screen, zbuffer, colorLeft, colorRight ):
+    x=x0
+    y=y0
+    A=y1-y0
+    B=-(x1-x0)
+    smallX=min(x0,x1)
+    bigX=max(x0,x1)
+    dist=bigX-smallX+1
+    color=colorLeft
+    dc=(colorRight-colorLeft)/dist
+    for i in range(smallX,bigX+1):
+        plot(screen,color,i,y0)
+        color+=dc
+    
 def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
 
     #swap points if going right -> left
