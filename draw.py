@@ -30,7 +30,7 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
 
     while y <= int(points[TOP][1]):
-        print str(x0)+ " "+str(x1)
+        #print str(x0)+ " "+str(x1)
         draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
         x0+= dx0
         z0+= dz0
@@ -108,7 +108,7 @@ def scanline_convertS(polygons, i, screen, zbuffer, c1,c2,c3 ):
             c1[i]=int(c1[i])
         #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, c0)
         draw_lineShade(int(x0),int(y), z0, int(x1), int(y), z1, screen, zbuffer, c0,c1)
-        print str(x0)+" "+str(y)+" "+str(x1)
+        #print str(x0)+" "+str(y)+" "+str(x1)
         x0+= dx0
         z0+= dz0
         x1+= dx1
@@ -227,7 +227,7 @@ def draw_polygonsMesh( fileName, stack, matrix, screen, zbuffer, view, ambient, 
             else:
                 v2=v00[:]
                 v1=v11[:]
-        print v0
+        #print v0
         for i in range(len(v0)):
             v0[i]=float(round(float(v0[i]),3))
         for j in range(len(v1)):
@@ -281,19 +281,19 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
             if not checkDup(surfNor0,vert[v1t]):
                 vert[v1t].append(surfNor0)
         else:
-            print "no"
+            #print "no"
             vert[v1t]=[surfNor0]
         if checkFound(v2,vert):
             if not checkDup(surfNor0,vert[v2t]):
                 vert[v2t].append(surfNor0)
         else:
-            print "no"
+            #print "no"
             vert[v2t]=[surfNor0]
         point +=3
     point=0
     processed=processHashTable(vert)
-    for key in processed:
-        print processed[key]
+    #for key in processed:
+        #print processed[key]
     while point < len(matrix) - 2:
             normal = calculate_normal(matrix, point)[:]
             v00=matrix[point]
@@ -345,9 +345,9 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
                 i1= get_lighting(v1sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 i2= get_lighting(v2sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 #color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
-                print i0
-                print i1
-                print i2
+                #print i0
+                #print i1
+                #print i2
                 #scanline_convert(matrix, point, screen, zbuffer, i2)
                 scanline_convertS(matrix, point, screen, zbuffer, i0,i1,i2)
             point +=3
@@ -579,7 +579,7 @@ def draw_lineShade( x0, y0, z0, x1, y1, z1, screen, zbuffer, colorLeft, colorRig
     dcg=(colorRightg-colorLeftg)/dist if dist!=0 else 0
     dcb=(colorRightb-colorLeftb)/dist if dist!=0 else 0
     #dz=(z1-z0+0.0)/dist if dist!=0 else 0
-    print str(z0)+" "+str(z1)
+    #print str(z0)+" "+str(z1)
     for i in range(smallX,bigX+1):
         color=[int(colorR),int(colorG),int(colorB)]
         plot(screen,zbuffer,color,int(x),int(y0),z)
@@ -666,9 +666,9 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
         loop_start+= 1
     for i in range(3):
         color[i]=int(color[i])
-    print color[0]
-    print color[1]
-    print color[2]
+    #print color[0]
+    #print color[1]
+    #print color[2]
     plot( screen, zbuffer, color, x, y, z )
 
 def addMeshPoly(poly,verList,i1,i2,i3):

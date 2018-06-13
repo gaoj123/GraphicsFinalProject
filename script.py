@@ -297,7 +297,7 @@ def run(filename):
     consts=''
     lights=[]
     coords1=[]
-    step_3d = 20
+    step_3d = 50
     p = mdl.parseFile(filename)
 
     if p:
