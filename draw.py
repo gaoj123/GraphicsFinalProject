@@ -101,7 +101,7 @@ def scanline_convertS(polygons, i, screen, zbuffer, c1,c2,c3 ):
     while y <= int(points[TOP][1]):
         c0=[c0r,c0g,c0b]
         c1=[c1r,c1g,c1b]
-        draw_lineShade(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, c0,c1)
+        draw_lineShade(int(x0), int(y), z0, int(x1), int(y), z1, screen, zbuffer, c0,c1)
         #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
         x0+= dx0
         z0+= dz0
@@ -216,7 +216,78 @@ def checkFound(v,li):
         if float(round(v0x,3))==a[0] and float(round(v0y,3))==a[1] and float(round(v0z,3))==a[2]:
             found=True
     return found
-    
+
+def draw_polygonsMesh( fileName, stack, matrix, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect):
+    if len(matrix) < 2:
+        print 'Need at least 3 points to draw'
+        return
+    faces=meshFaces(fileName, matrix, stack)
+    vn=meshVN(fileName, matrix, stack)
+    i=0
+    for f in faces:
+        normal = calculate_normal(matrix, i)[:]
+        v00=vn[int(f[0])-1]
+        v11=vn[int(f[1])-1]
+        v22=vn[int(f[2])-1]
+        for i in range(3):
+            v00[i]=float(round(float(v00[i]),3))
+            v11[i]=float(round(float(v11[i]),3))
+            v22[i]=float(round(float(v22[i]),3))
+        #print v00
+        #print v11
+        #print v22
+        minY=min(v00[1],v11[1],v22[1])
+        maxY=max(v00[1],v11[1],v22[1])
+        if v00[1]==minY:
+            v0=v00[:]
+            if v11[1]==maxY:
+                v2=v11[:]
+                v1=v22[:]
+            else:
+                v2=v22[:]
+                v1=v11[:]
+        elif v11[1]==minY:
+            v0=v11[:]
+            if v00[1]==maxY:
+                v2=v00[:]
+                v1=v22[:]
+            else:
+                v2=v22[:]
+                v1=v00[:]
+        else:
+            v0=v22[:]
+            if v11[1]==maxY:
+                v2=v11[:]
+                v1=v00[:]
+            else:
+                v2=v00[:]
+                v1=v11[:]
+        print v0
+        for i in range(len(v0)):
+            v0[i]=float(round(float(v0[i]),3))
+        for j in range(len(v1)):
+            v1[j]=float(round(float(v1[j]),3))
+        for k in range(len(v2)):
+            v2[k]=float(round(float(v2[k]),3))
+        v0t=v0[0],v0[1],v0[2]
+        v1t=v1[0],v1[1],v1[2]
+        v2t=v2[0],v2[1],v2[2]
+        #v0=int(matrix[point])
+        #v1=int(matrix[point+1])
+        #v2=int(matrix[point+2])
+        if dot_product(normal, view) > 0:
+            v0sumNormal=v00
+            #print v0sumNormal
+            v1sumNormal=v11
+            #print v1sumNormal
+            v2sumNormal=v22
+            #print v2sumNormal
+            i0= get_lighting(v0sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+            i1= get_lighting(v1sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+            i2= get_lighting(v2sumNormal, view, ambient, light, areflect, dreflect, sreflect )
+            scanline_convertS(matrix, i, screen, zbuffer, i0,i1,i2)
+        i+=3
+            
 def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect):
     if len(matrix) < 2:
         print 'Need at least 3 points to draw'
@@ -242,23 +313,31 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
         #surfNor1=calculate_normal(matrix,point+1)[:]
         #surfNor2=calculate_normal(matrix,point+2)[:]
         if checkFound(v0,vert):
+            print "yes"
             #surfNor0=calculate_normal(matrix,point)
             vert[v0t].append(surfNor0)
         else:
+            print "no"
             vert[v0t]= [surfNor0]
         if checkFound(v1,vert):
+            print "yes"
             #surfNor1=calculate_normal(matrix,point+1)
             vert[v1t ].append(surfNor0)
         else:
+            print "no"
             vert[v1t]=[surfNor0]
         if checkFound(v2,vert):
+            print "yes"
             #surfNor2=calculate_normal(matrix,point+2)
             vert[v2t].append(surfNor0)
         else:
+            print "no"
             vert[v2t]=[surfNor0]
         point +=3
     point=0
     processed=processHashTable(vert)
+    for key in processed:
+        print processed[key]
     while point < len(matrix) - 2:
             normal = calculate_normal(matrix, point)[:]
             # v0=int(matrix[point])
@@ -307,8 +386,11 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
             #v2=int(matrix[point+2])
             if dot_product(normal, view) > 0:
                 v0sumNormal=processed[v0t]
+                #print v0sumNormal
                 v1sumNormal=processed[v1t]
+                #print v1sumNormal
                 v2sumNormal=processed[v2t]
+                #print v2sumNormal
                 i0= get_lighting(v0sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 i1= get_lighting(v1sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 i2= get_lighting(v2sumNormal, view, ambient, light, areflect, dreflect, sreflect )
@@ -636,7 +718,12 @@ def drawMesh(fileName, polyList, stack):
     while c<len(lines):
         line=lines[c].strip()
         #print line
-        arrLine=line.split(" ")
+        arrLin=line.split(" ")
+        #print arrLine
+        arrLine = [x for x in arrLin if x!='']
+        #print arrLine
+        if len(arrLine)==0:
+            arrLine=[1]
         if arrLine[0]=="v":
             vertices.append([arrLine[1],arrLine[2],arrLine[3]])
         elif arrLine[0]=="f":
@@ -687,10 +774,94 @@ def drawMesh(fileName, polyList, stack):
         ver1=face[0]
         ver2=face[1]
         ver3=face[2]
+        #print ver1+" "+ver2+" "+ver3
         addMeshPoly(polyList,vertices,int(ver1),int(ver2),int(ver3))
         #matrix_mult( stack[-1], polyList )
     #draw_polygons(polyList,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
-        
+
+def meshFaces(fileName, polyList, stack):
+    vertices=[]
+    faces=[]
+    f=open(fileName)
+    lines=f.readlines()
+    c=0
+    while c<len(lines):
+        line=lines[c].strip()
+        #print line
+        arrLin=line.split(" ")
+        #print arrLine
+        arrLine = [x for x in arrLin if x!='']
+        #print arrLine
+        if len(arrLine)==0:
+            arrLine=[1]
+        if arrLine[0]=="v":
+            vertices.append([arrLine[1],arrLine[2],arrLine[3]])
+        elif arrLine[0]=="f":
+            if len(arrLine)==5:
+                v1=arrLine[1]
+                v2=arrLine[2]
+                v3=arrLine[3]
+                v4=arrLine[4]
+                faces.append([v1,v2,v3])
+                faces.append([v1,v3,v4])
+            elif len(arrLine)==6:
+                v1=arrLine[1]
+                v2=arrLine[2]
+                v3=arrLine[3]
+                v4=arrLine[4]
+                v5=arrLine[5]
+                faces.append([v1,v2,v3])
+                faces.append([v1,v3,v4])
+                faces.append([v1,v4,v5])
+            elif len(arrLine)==7:
+                v1=arrLine[1]
+                v2=arrLine[2]
+                v3=arrLine[3]
+                v4=arrLine[4]
+                v5=arrLine[5]
+                v6=arrLine[6]
+                faces.append([v1,v2,v3])
+                faces.append([v1,v3,v4])
+                faces.append([v1,v4,v5])
+                faces.append([v1,v5,v6])
+            else:
+            #print arrLine[1].split("//")[0]
+                if "//" in arrLine[1]:
+                    v1=arrLine[1].split("//")[0]
+                else:
+                    v1=arrLine[1]
+                if "//" in arrLine[2]:
+                    v2=arrLine[2].split("//")[0]
+                else:
+                    v2=arrLine[2]
+                if "//" in arrLine[3]:
+                    v3=arrLine[3].split("//")[0]
+                else:
+                    v3=arrLine[3]
+                faces.append([v1,v2,v3])
+        c+=1
+    return faces
+
+def meshVN(fileName, polyList, stack):
+    vertices=[]
+    vn=[]
+    f=open(fileName)
+    lines=f.readlines()
+    c=0
+    while c<len(lines):
+        line=lines[c].strip()
+        #print line
+        arrLin=line.split(" ")
+        #print arrLine
+        arrLine = [x for x in arrLin if x!='']
+        #print arrLine
+        if len(arrLine)==0:
+            arrLine=[1]
+        if arrLine[0]=="vn":
+            vn.append([arrLine[1],arrLine[2],arrLine[3]])
+        c+=1
+    return vn
+    
 # def drawMesh(fileName):
 #     vectors=[]
 #     faces=[]

@@ -407,6 +407,7 @@ def run(filename):
             drawMesh(args[0],tmp,stack)
             #print "len "+str(len(tmp))
             matrix_mult( stack[-1], tmp )
+            #draw_polygonsMesh(args[0],stack,tmp,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
             draw_polygons(tmp,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
             tmp=[]
 #run("simple.mdl")
