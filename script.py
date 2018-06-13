@@ -81,9 +81,9 @@ def second_pass( commands, num_frames ):
             endFrame=args[1]
             start=args[2]
             end=args[3]
-            print str(start)+ " "+str(end)+" "+str(num_frames)
+            #print str(start)+ " "+str(end)+" "+str(num_frames)
             toVary=(end-start+0.0)/(endFrame-startFrame)
-            print str(toVary)
+            #print str(toVary)
             if startFrame>num_frames-1 or endFrame>num_frames-1 or endFrame<startFrame or startFrame<0 or endFrame<0:
                 print "Invalid range or frame"
                 exit()
@@ -268,7 +268,7 @@ def run(filename):
     ambient = [50,
                50,
                50]
-    light = [[0.5,
+    light = [[0.3,
               0.75,
               1],#[0,191,255]]
              [0,
@@ -295,9 +295,9 @@ def run(filename):
     edges=[]
     coords=[]
     consts=''
+    lights=[]
     coords1=[]
     step_3d = 20
-
     p = mdl.parseFile(filename)
 
     if p:
@@ -346,6 +346,7 @@ def run(filename):
                        args[0], args[1], args[2], args[3], step_3d)
             matrix_mult( stack[-1], tmp )
             if gou:
+                #draw_polygons(tmp, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
                 draw_polygonsS(tmp, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
             else:
                 draw_polygons(tmp, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
@@ -408,6 +409,10 @@ def run(filename):
             #print "len "+str(len(tmp))
             matrix_mult( stack[-1], tmp )
             #draw_polygonsMesh(args[0],stack,tmp,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
-            draw_polygons(tmp,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
+            if gou:
+                #print "YES"
+                draw_polygonsS(tmp, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
+            else:
+                draw_polygons(tmp,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
             tmp=[]
 #run("simple.mdl")
