@@ -13,11 +13,6 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
 
-    # color = [0,0,0]
-    # color[RED] = (23*(i/3)) %256
-    # color[GREEN] = (109*(i/3)) %256
-    # color[BLUE] = (227*(i/3)) %256
-
     points.sort(key = lambda x: x[1])
     x0 = points[BOT][0]
     z0 = points[BOT][2]
@@ -35,7 +30,7 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
 
     while y <= int(points[TOP][1]):
-
+        print str(x0)+ " "+str(x1)
         draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
         x0+= dx0
         z0+= dz0
@@ -60,33 +55,32 @@ def scanline_convertS(polygons, i, screen, zbuffer, c1,c2,c3 ):
     points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-
-    # color = [0,0,0]
-    # color[RED] = (23*(i/3)) %256
-    # color[GREEN] = (109*(i/3)) %256
-    # color[BLUE] = (227*(i/3)) %256
-
     points.sort(key = lambda x: x[1])
     x0 = points[BOT][0]
     z0 = points[BOT][2]
     x1 = points[BOT][0]
     z1 = points[BOT][2]
     y = int(points[BOT][1])
-    c=[c1,c2,c3]
+    #c=[c1,c2,c3]
     #c.sort(key = lambda x: x[1])
-    c0r=c[BOT][0]
-    c0g=c[BOT][1]
-    c0b=c[BOT][2]
-    c1r=c[MID][0]
-    c1g=c[MID][1]
-    c1b=c[MID][2]
-    c2r=c[TOP][0]
-    c2g=c[TOP][1]
-    c2b=c[TOP][2]
+    c0r=int(c1[0])
+    c0g=int(c1[1])
+    c0b=int(c1[2])
+    c1r=int(c2[0])
+    c1g=int(c2[1])
+    c1b=int(c2[2])
+    c2r=int(c3[0])
+    c2g=int(c3[1])
+    c2b=int(c3[2])
+    r0=c0r
+    g0=c0g
+    b0=c0b
+    r1=c0r
+    g1=c0g
+    b1=c0b
     distance0 = int(points[TOP][1]) - y * 1.0
     distance1 = int(points[MID][1]) - y * 1.0
     distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0
-
     dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
     dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
     dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
@@ -98,21 +92,33 @@ def scanline_convertS(polygons, i, screen, zbuffer, c1,c2,c3 ):
     dc1r=(c1r-c0r)/ distance1 if distance1 != 0 else 0
     dc1g=(c1g-c0g)/ distance1 if distance1 != 0 else 0
     dc1b=(c1b-c0b)/ distance1 if distance1 != 0 else 0
+    if distance0==0:
+        r1=c2[0]
+        g1=c2[1]
+        b1=c2[2]
+    elif distance1==0:
+        r1=c1[0]
+        g1=c1[1]
+        b1=c1[2]
     while y <= int(points[TOP][1]):
-        c0=[c0r,c0g,c0b]
-        c1=[c1r,c1g,c1b]
-        draw_lineShade(int(x0), int(y), z0, int(x1), int(y), z1, screen, zbuffer, c0,c1)
-        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+        c0=[r0,g0,b0]
+        c1=[r1,g1,b1]
+        for i in range(3):
+            c0[i]=int(c0[i])
+            c1[i]=int(c1[i])
+        #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, c0)
+        draw_lineShade(int(x0),int(y), z0, int(x1), int(y), z1, screen, zbuffer, c0,c1)
+        print str(x0)+" "+str(y)+" "+str(x1)
         x0+= dx0
         z0+= dz0
         x1+= dx1
         z1+= dz1
-        c0r+=dc0r
-        c0g+=dc0g
-        c0b+=dc0b
-        c1r+=dc1r
-        c1g+=dc1g
-        c1b+=dc1b
+        r0+=dc0r
+        g0+=dc0g
+        b0+=dc0b
+        r1+=dc1r
+        g1+=dc1g
+        b1+=dc1b
         y+= 1
 
         if ( not flip and y >= int(points[MID][1])):
@@ -125,55 +131,10 @@ def scanline_convertS(polygons, i, screen, zbuffer, c1,c2,c3 ):
             dc1r=(c2r-c1r)/distance2 if distance2 != 0 else 0
             dc1g=(c2g-c1g)/distance2 if distance2 != 0 else 0
             dc1b=(c2b-c1b)/distance2 if distance2 != 0 else 0
+            r1=c1r
+            g1=c1g
+            b1=c1b
             
-# def scanline_convert(polygons, i, screen, zbuffer, color ):
-#     flip = False
-#     BOT = 0
-#     TOP = 2
-#     MID = 1
-
-#     points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
-#                (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
-#                (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-
-#     # color = [0,0,0]
-#     # color[RED] = (23*(i/3)) %256
-#     # color[GREEN] = (109*(i/3)) %256
-#     # color[BLUE] = (227*(i/3)) %256
-
-#     points.sort(key = lambda x: x[1])
-#     x0 = points[BOT][0]
-#     z0 = points[BOT][2]
-#     x1 = points[BOT][0]
-#     z1 = points[BOT][2]
-#     y = int(points[BOT][1])
-
-#     distance0 = int(points[TOP][1]) - y * 1.0
-#     distance1 = int(points[MID][1]) - y * 1.0
-#     distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0
-
-#     dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
-#     dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
-#     dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
-#     dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
-
-#     while y <= int(points[TOP][1]):
-
-#         draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
-#         x0+= dx0
-#         z0+= dz0
-#         x1+= dx1
-#         z1+= dz1
-#         y+= 1
-
-#         if ( not flip and y >= int(points[MID][1])):
-#             flip = True
-
-#             dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
-#             dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
-#             x1 = points[MID][0]
-#             z1 = points[MID][2]
-
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0);
     add_point(polygons, x1, y1, z1);
@@ -181,7 +142,7 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
 
 def processHashTable(vertices):
     toRet={}
-    for key in vertices:
+    for key in vertices.keys():
         surfNorms=vertices[key]
         sumVect=[0,0,0]
         for i in surfNorms:
@@ -206,6 +167,13 @@ def draw_polygons( matrix, screen, zbuffer, view, ambient, light, areflect, dref
             color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
             scanline_convert(matrix, point, screen, zbuffer, color)
         point+= 3
+
+def checkDup(n,li):
+    toRet=False
+    for a in li:
+        if float(round(n[0],3))==float(round(a[0],3)) and float(round(n[1],3))==float(round(a[1],3)) and float(round(n[2],3))==float(round(a[2],3)):
+            toRet=True
+    return toRet
         
 def checkFound(v,li):
     v0x=v[0]
@@ -233,9 +201,6 @@ def draw_polygonsMesh( fileName, stack, matrix, screen, zbuffer, view, ambient, 
             v00[i]=float(round(float(v00[i]),3))
             v11[i]=float(round(float(v11[i]),3))
             v22[i]=float(round(float(v22[i]),3))
-        #print v00
-        #print v11
-        #print v22
         minY=min(v00[1],v11[1],v22[1])
         maxY=max(v00[1],v11[1],v22[1])
         if v00[1]==minY:
@@ -272,9 +237,6 @@ def draw_polygonsMesh( fileName, stack, matrix, screen, zbuffer, view, ambient, 
         v0t=v0[0],v0[1],v0[2]
         v1t=v1[0],v1[1],v1[2]
         v2t=v2[0],v2[1],v2[2]
-        #v0=int(matrix[point])
-        #v1=int(matrix[point+1])
-        #v2=int(matrix[point+2])
         if dot_product(normal, view) > 0:
             v0sumNormal=v00
             #print v0sumNormal
@@ -309,27 +271,21 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
         v0t=v0[0],v0[1],v0[2]
         v1t=v1[0],v1[1],v1[2]
         v2t=v2[0],v2[1],v2[2]
-        surfNor0=calculate_normal(matrix,point)[:]
-        #surfNor1=calculate_normal(matrix,point+1)[:]
-        #surfNor2=calculate_normal(matrix,point+2)[:]
+        surfNor0=normal
         if checkFound(v0,vert):
-            print "yes"
-            #surfNor0=calculate_normal(matrix,point)
-            vert[v0t].append(surfNor0)
+            if not checkDup(surfNor0,vert[v0t]):
+                vert[v0t].append(surfNor0)
         else:
-            print "no"
             vert[v0t]= [surfNor0]
         if checkFound(v1,vert):
-            print "yes"
-            #surfNor1=calculate_normal(matrix,point+1)
-            vert[v1t ].append(surfNor0)
+            if not checkDup(surfNor0,vert[v1t]):
+                vert[v1t].append(surfNor0)
         else:
             print "no"
             vert[v1t]=[surfNor0]
         if checkFound(v2,vert):
-            print "yes"
-            #surfNor2=calculate_normal(matrix,point+2)
-            vert[v2t].append(surfNor0)
+            if not checkDup(surfNor0,vert[v2t]):
+                vert[v2t].append(surfNor0)
         else:
             print "no"
             vert[v2t]=[surfNor0]
@@ -340,9 +296,6 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
         print processed[key]
     while point < len(matrix) - 2:
             normal = calculate_normal(matrix, point)[:]
-            # v0=int(matrix[point])
-            # v1=int(matrix[point+1])
-            # v2=int(matrix[point+2])
             v00=matrix[point]
             v11=matrix[point+1]
             v22=matrix[point+2]
@@ -381,9 +334,6 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
             v0t=v0[0],v0[1],v0[2]
             v1t=v1[0],v1[1],v1[2]
             v2t=v2[0],v2[1],v2[2]
-            #v0=int(matrix[point])
-            #v1=int(matrix[point+1])
-            #v2=int(matrix[point+2])
             if dot_product(normal, view) > 0:
                 v0sumNormal=processed[v0t]
                 #print v0sumNormal
@@ -395,7 +345,10 @@ def draw_polygonsS( matrix, screen, zbuffer, view, ambient, light, areflect, dre
                 i1= get_lighting(v1sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 i2= get_lighting(v2sumNormal, view, ambient, light, areflect, dreflect, sreflect )
                 #color = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect )
-                #scanline_convert(matrix, point, screen, zbuffer, color)
+                print i0
+                print i1
+                print i2
+                #scanline_convert(matrix, point, screen, zbuffer, i2)
                 scanline_convertS(matrix, point, screen, zbuffer, i0,i1,i2)
             point +=3
 
@@ -600,9 +553,19 @@ def add_point( matrix, x, y, z=0 ):
 def draw_lineShade( x0, y0, z0, x1, y1, z1, screen, zbuffer, colorLeft, colorRight ):
     x=x0
     y=y0
+    z=z0
     smallX=min(x0,x1)
     bigX=max(x0,x1)
     dist=bigX-smallX
+    if x0>x1:
+        z=z1
+        x=x1
+        dz=(z0-z1+0.0)/dist if dist!=0 else 0
+    else:
+        dz=(z1-z0+0.0)/dist if dist!=0 else 0
+    a=colorRight
+    colorLeft=a
+    colorRight=colorLeft
     colorR=colorLeft[0]
     colorG=colorLeft[1]
     colorB=colorLeft[2]
@@ -615,13 +578,16 @@ def draw_lineShade( x0, y0, z0, x1, y1, z1, screen, zbuffer, colorLeft, colorRig
     dcr=(colorRightr-colorLeftr)/dist if dist!=0 else 0
     dcg=(colorRightg-colorLeftg)/dist if dist!=0 else 0
     dcb=(colorRightb-colorLeftb)/dist if dist!=0 else 0
+    #dz=(z1-z0+0.0)/dist if dist!=0 else 0
+    print str(z0)+" "+str(z1)
     for i in range(smallX,bigX+1):
-        color=[colorR,colorG,colorB]
-        plot(screen,zbuffer,color,x,y0,z0)
+        color=[int(colorR),int(colorG),int(colorB)]
+        plot(screen,zbuffer,color,int(x),int(y0),z)
         colorR+=dcr
         colorG+=dcg
         colorB+=dcb
         x+=1
+        z+=dz
     
 def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
 
@@ -698,6 +664,11 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
             d+= d_east
         z+= dz
         loop_start+= 1
+    for i in range(3):
+        color[i]=int(color[i])
+    print color[0]
+    print color[1]
+    print color[2]
     plot( screen, zbuffer, color, x, y, z )
 
 def addMeshPoly(poly,verList,i1,i2,i3):
@@ -705,9 +676,6 @@ def addMeshPoly(poly,verList,i1,i2,i3):
     ver2=verList[i2-1]
     ver3=verList[i3-1]
     add_polygon(poly,float(ver1[0]),float(ver1[1]),float(ver1[2]),float(ver2[0]),float(ver2[1]),float(ver2[2]),float(ver3[0]),float(ver3[1]),float(ver3[2]))
-    #print "len "+str(len(verList))
-    #if i3>=len(verList)-1:
-    #print "v3 "+str(i3)
         
 def drawMesh(fileName, polyList, stack):
     vertices=[]
@@ -717,11 +685,8 @@ def drawMesh(fileName, polyList, stack):
     c=0
     while c<len(lines):
         line=lines[c].strip()
-        #print line
         arrLin=line.split(" ")
-        #print arrLine
         arrLine = [x for x in arrLin if x!='']
-        #print arrLine
         if len(arrLine)==0:
             arrLine=[1]
         if arrLine[0]=="v":
@@ -774,143 +739,6 @@ def drawMesh(fileName, polyList, stack):
         ver1=face[0]
         ver2=face[1]
         ver3=face[2]
-        #print ver1+" "+ver2+" "+ver3
         addMeshPoly(polyList,vertices,int(ver1),int(ver2),int(ver3))
-        #matrix_mult( stack[-1], polyList )
-    #draw_polygons(polyList,screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
 
-def meshFaces(fileName, polyList, stack):
-    vertices=[]
-    faces=[]
-    f=open(fileName)
-    lines=f.readlines()
-    c=0
-    while c<len(lines):
-        line=lines[c].strip()
-        #print line
-        arrLin=line.split(" ")
-        #print arrLine
-        arrLine = [x for x in arrLin if x!='']
-        #print arrLine
-        if len(arrLine)==0:
-            arrLine=[1]
-        if arrLine[0]=="v":
-            vertices.append([arrLine[1],arrLine[2],arrLine[3]])
-        elif arrLine[0]=="f":
-            if len(arrLine)==5:
-                v1=arrLine[1]
-                v2=arrLine[2]
-                v3=arrLine[3]
-                v4=arrLine[4]
-                faces.append([v1,v2,v3])
-                faces.append([v1,v3,v4])
-            elif len(arrLine)==6:
-                v1=arrLine[1]
-                v2=arrLine[2]
-                v3=arrLine[3]
-                v4=arrLine[4]
-                v5=arrLine[5]
-                faces.append([v1,v2,v3])
-                faces.append([v1,v3,v4])
-                faces.append([v1,v4,v5])
-            elif len(arrLine)==7:
-                v1=arrLine[1]
-                v2=arrLine[2]
-                v3=arrLine[3]
-                v4=arrLine[4]
-                v5=arrLine[5]
-                v6=arrLine[6]
-                faces.append([v1,v2,v3])
-                faces.append([v1,v3,v4])
-                faces.append([v1,v4,v5])
-                faces.append([v1,v5,v6])
-            else:
-            #print arrLine[1].split("//")[0]
-                if "//" in arrLine[1]:
-                    v1=arrLine[1].split("//")[0]
-                else:
-                    v1=arrLine[1]
-                if "//" in arrLine[2]:
-                    v2=arrLine[2].split("//")[0]
-                else:
-                    v2=arrLine[2]
-                if "//" in arrLine[3]:
-                    v3=arrLine[3].split("//")[0]
-                else:
-                    v3=arrLine[3]
-                faces.append([v1,v2,v3])
-        c+=1
-    return faces
 
-def meshVN(fileName, polyList, stack):
-    vertices=[]
-    vn=[]
-    f=open(fileName)
-    lines=f.readlines()
-    c=0
-    while c<len(lines):
-        line=lines[c].strip()
-        #print line
-        arrLin=line.split(" ")
-        #print arrLine
-        arrLine = [x for x in arrLin if x!='']
-        #print arrLine
-        if len(arrLine)==0:
-            arrLine=[1]
-        if arrLine[0]=="vn":
-            vn.append([arrLine[1],arrLine[2],arrLine[3]])
-        c+=1
-    return vn
-    
-# def drawMesh(fileName):
-#     vectors=[]
-#     faces=[]
-#     f=open(fileName)
-#     lines=f.readlines()
-#     c=0
-#     while c<len(lines):
-#         line=lines[c].strip()
-#         print line
-#         arrLine=line.split(" ")
-#         if arrLine[0]=="v":
-#             vectors.append([arrLine[1],arrLine[2],arrLine[3]])
-#         elif arrLine[0]=="f":
-#             #print arrLine[1].split("//")[0]
-#             v1=arrLine[1].split("//")[0]
-#             v2=arrLine[2].split("//")[0]
-#             v3=arrLine[3].split("//")[0]
-#             faces.append([v1,v2,v3])
-#         c+=1
-
-# view = [0,
-#         0,
-#         1];
-# ambient = [50,
-#            50,
-#            50]
-# light = [[0.5,
-#           0.75,
-#           1],#[0,191,255]]
-#          [0,
-#           255,
-#           255]]
-# areflect = [0.1,
-#             0.1,
-#             0.1]
-# dreflect = [0.5,
-#             0.5,
-#             0.5]
-# sreflect = [0.5,
-#             0.5,
-#             0.5]
-
-# color = [0, 0, 0]
-# tmp = new_matrix()
-# ident( tmp )
-# polygons=[]
-# stack = [ [x[:] for x in tmp] ]
-# screen = new_screen()
-# zbuffer = new_zbuffer()
-# tmp = []
-
-# drawMesh("airboat.obj",tmp, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
