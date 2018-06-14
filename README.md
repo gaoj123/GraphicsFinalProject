@@ -15,5 +15,4 @@ For gouraud shading, programmer should add this line
 ```
 shading gouraud
 ```
-<br>
-Note: For Gouraud Shading, I implemented a hash table and interpolation. Currently, it's close to a smooth surface (e.g. you can test a sphere and see); I couldn't get it to be perfectly smooth.
+NOTE: It takes a while to generate images if you increase the step size for gouraud shading.
