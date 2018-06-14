@@ -9,10 +9,15 @@ mesh :filename.obj
 ```
 + Shading
 
-For flat shading, programmer should NOT add a line in the script regarding shading
+For flat shading, programmer should add this line
+```
+shading flat
+```
 
 For gouraud shading, programmer should add this line
 ```
 shading gouraud
 ```
-NOTE: It takes a while to generate images if you increase the step size for gouraud shading.
+NOTE: 
+1. It takes a while to generate images if you increase the step size for gouraud shading.
+2. If the programmer doesn't add a line regarding shading, the default type of shading is flat shading.
