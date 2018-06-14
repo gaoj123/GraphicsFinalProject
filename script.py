@@ -316,7 +316,11 @@ def run(filename):
                 if not isinstance(args[i], basestring):
                     args[i] = args[i]*symbols[knob][1]
         if c=='shading':
-            gou=True
+            shade=command['shade_type']
+            if shade=='gouraud':
+                gou=True
+            else:
+                gou=False
     for command in commands:
         c = command['op']
         args = command['args']
