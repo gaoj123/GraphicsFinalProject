@@ -7,12 +7,11 @@
 ```
 mesh :filename.obj
 ```
-<br>
 + Shading
-<br>
+
 For flat shading, programmer should NOT add a line in the script regarding shading
-<br>
-For gouraud shading, programmer should add this line:<br>
+
+For gouraud shading, programmer should add this line
 ```
 shading gouraud
 ```
