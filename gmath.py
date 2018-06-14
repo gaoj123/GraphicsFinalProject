@@ -74,8 +74,13 @@ def normalize(vector):
     magnitude = math.sqrt( vector[0] * vector[0] +
                            vector[1] * vector[1] +
                            vector[2] * vector[2])
-    for i in range(3):
-        vector[i] = vector[i] / magnitude
+    if magnitude==0:
+        for i in range(3):
+            vector[i]=0
+    else:
+    #print "ZERO"
+        for i in range(3):
+            vector[i] = vector[i] / magnitude
 
 def sumVectors(v1,v2):
     N=[0,0,0]
